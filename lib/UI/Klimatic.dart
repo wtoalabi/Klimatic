@@ -32,6 +32,17 @@ class _KlimaticState extends State<Klimatic> {
   }
 
   @override
+  void initState() {
+    var url = "https://api.openweathermap.org/data/2.5/weather?q=Abuja&2172797&appid=${util.appID}&units=imperial";
+    http.get(url).then((v){
+      var data = json.decode(v.body);
+      setState(() {
+        temp = util.turnToCelsius(data['main']['temp']);
+      });
+    });
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -128,6 +139,7 @@ class _GetCityScreenState extends State<GetCityScreen> {
   bool loading = false;
   Map cityData = {};
   String notFound = "";
+
   void getData() async {
     setState(() {
       loading = true;
@@ -177,36 +189,46 @@ class _GetCityScreenState extends State<GetCityScreen> {
         centerTitle: true,
         title: Text("Type City Name"),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          Row(
+          Image.asset(
+            "assets/images/white_snow.png",
+            width: 490.0,
+            height: 1200.0,
+            fit: BoxFit.fill,
+          ),
+          Column(
             children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: _cityController,
-                  decoration:
-                      InputDecoration(hintText: "Type the city to search"),
-                ),
-              ),
-              loading
-                  ? CircularProgressIndicator(
-                      strokeWidth: 3.0,
-                    )
-                  : RaisedButton(
-                      child: Text("Search..."),
-                      color: Colors.lightBlueAccent,
-                      onPressed: () {
-                        return getData();
-                      },
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: TextField(
+                      controller: _cityController,
+                      decoration:
+                          InputDecoration(hintText: "Type the city to search"),
                     ),
+                  ),
+                  loading
+                      ? CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                        )
+                      : RaisedButton(
+                          child: Text("Search..."),
+                          color: Colors.lightBlueAccent,
+                          onPressed: () {
+                            return getData();
+                          },
+                        ),
+                ],
+              ),
+              loading ? Text("Looking the city up...") : Text(""),
+              Text(
+                notFound,
+                style: TextStyle(
+                    color: Colors.redAccent, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
-          loading ? Text("Looking the city up...") : Text(""),
-          Text(notFound, style: TextStyle(
-            color: Colors.redAccent,
-            fontWeight: FontWeight.bold
-
-          ),),
         ],
       ),
     );
